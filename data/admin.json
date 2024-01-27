@@ -1,0 +1,7 @@
+{
+    "admin": "4",
+    "super":   { "id": "00", "valid": "1", "name": "user1", "pw": "user1pw", "reg date": "2018-12-01", "hostI": "90", "macI": "", "hostII": "", "macII": "" },
+    "sugroup": { "id": "10", "valid": "1", "name": "user2", "pw": "user2pw", "reg date": "2018-12-01", "hostI": "90", "macI": "", "hostII": "", "macII": "" },
+    "adm1":    { "id": "20", "valid": "1", "name": "user3", "pw": "user3pw", "reg date": "2018-12-01", "hostI": "180", "macI": "", "hostII": "", "macII": "" },
+    "adm2":    { "id": "21", "valid": "1", "name": "user4", "pw": "user4pw", "reg date": "2018-12-01", "hostI": "190", "macI": "", "hostII": "", "macII": "" }
+}

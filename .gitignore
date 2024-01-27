@@ -1,0 +1,30 @@
+jsDeleted.txt
+data/short_usettings.js
+data/debug.log
+libraries/ArduinoOTA
+libraries/Uno_WiFi_Developer_Edition_Serial1
+libraries/Adafruit_NeoPixel/
+libraries/Easy_NeoPixels/
+libraries/MobaLedLib/
+libraries/fix_fft/
+tools/esptool
+.gitignore.swp
+.gitignore.bak
+smHomeWifiWebServer/data/temp.html
+SmHomeWiFiWebServer.h.*
+config.mk.*
+makeEspArduino.mk.*
+ToDo - Laon WiFi Server.txt.*
+
+.git
+.readme
+vsPrj
+vsPrj_2022
+Tools
+ToDo - Laon WiFi Server.txt
+makeEspArduino.mk
+libraries/keywords.txt
+libraries/library.properties
+libraries/LICENSE
+libraries/README.md
+libraries/src

@@ -1,0 +1,10 @@
+{
+    "defaultAp": "1",
+    "ap": "5",
+    "apList": [ 
+        { "id": "gGalaxy", "pw": "pi@coffeeshop" },
+        { "id": "[YOUR SSID]", "pw": "[YOUR ROUTER PASSWORD]" },
+        { "id": "Second Cup - WiFi", "pw": "secondcup2018" },
+        { "id": "Tim Hortons WiFi", "pw": "" },
+        { "id": "Toronto Public Library", "pw": "" } ]
+}    

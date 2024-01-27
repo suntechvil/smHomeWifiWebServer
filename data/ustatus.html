@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Status</title>
+		<meta charset="UTF-8">
+		<style>
+			a, #usubmit {
+				font-size:40px;
+			}
+             
+			table {    
+				border-collapse: collapse;				
+			}
+			td, th {
+				border: 1px solid #dddddd;    
+				padding: 8px;
+			}
+			tr:nth-child(even) {
+				background-color: #dddddd;
+			}
+		</style>
+		<script type='text/javascript'>
+			var maxTimerRptCnt;
+			var numUser;
+			var $ = function(id) { return document.getElementById(id);}
+			
+			var myStatusTimer;
+			var maxStatusQueryCnt = 0;
+
+			var xmlHttp= new CreateXmlHttpObject();			
+
+			function CreateXmlHttpObject() {
+				var xHttp;
+				if(window.XMLHttpRequest){
+					xHttp = new XMLHttpRequest();
+				}else{
+					xHttp = new ActiveXObject('Microsoft.XMLHTTP');
+				}
+				return xHttp;
+			}
+
+			var handleServerResponse = function() {
+				if( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+					var message = "";
+					if (maxStatusQueryCnt <= maxTimerRptCnt) {
+						var ut = $("utable");
+						
+						xmlResponse = xmlHttp.responseXML;
+						xmldoc = xmlResponse.getElementsByTagName('u');						
+						numUser = xmldoc.length;						
+
+						for( var i = 0, j = 1; i <= numUser; i++ ) {
+							for( ; j < ut.rows.length; j++) {
+								if( ut.rows[j].cells[0].firstChild.checked == true ) {
+									ut.rows[j].cells[2].innerHTML = xmldoc[i].childNodes[1].innerHTML;
+
+									message += xmldoc[i].childNodes[0].innerHTML + "/";
+									message += xmldoc[i].childNodes[1].innerHTML + "\n";
+
+									j++;
+									break;
+								}
+							}
+
+							if(j >= ut.rows.length) break;
+						}
+						
+					} else {
+						message = "   please click on Check Status button !";
+					}
+
+					$('mytxt').innerHTML = message;
+
+					if (maxStatusQueryCnt == maxTimerRptCnt) {
+						clearInterval(myStatusTimer);
+						maxStatusQueryCnt = 100;
+						$("usubmit").disabled = false;
+					}
+				}
+			}
+
+			var checkStatus = function() {
+				if( xmlHttp.readyState == 0 || xmlHttp.readyState == 4 ){
+					if (maxStatusQueryCnt < maxTimerRptCnt) {
+						xmlHttp.open('PUT','/xml?USST=2',true);
+						xmlHttp.onreadystatechange = handleServerResponse;
+						xmlHttp.send(null);
+						maxStatusQueryCnt++;
+					} else if (maxStatusQueryCnt == maxTimerRptCnt) {
+						clearInterval(myStatusTimer);
+						maxStatusQueryCnt = 100;
+						$("usubmit").disabled = false;
+					}
+				}
+			}
+
+			var startStatusCheck = function(cnt) {
+				if( cnt > 0 ) cnt *= 4500;
+				else cnt = 100;
+				myStatusTimer = setInterval( function() {checkStatus();}, cnt);
+			}
+
+			var restartCheckStatus = function (cnt) {
+				maxTimerRptCnt = 1;
+				maxStatusQueryCnt = 0;
+				$("usubmit").disabled = true;
+				startStatusCheck(cnt);				
+			}
+            
+			var updateCheckbox = function (checked, val) {
+				var ut = $("utable");
+
+				if( arguments.length != 2 ) {
+					checked = true;
+					val = 0;
+					ut.rows[0].cells[0].firstChild.checked = checked;
+				}
+
+				if ( val == 0 ) {                
+					for (var i = 0; i < ut.rows.length - 1; i++) { // -1 due to submit
+                        
+						ut.rows[i+1].cells[0].firstChild.checked = checked;
+						//$('mytxt').innerHTML += cb.checked.toString();
+					}
+				}
+			}
+
+
+			var startPing = function(e) {
+				var usr;
+				var cnt = 0;
+				var ut = $("utable");
+				e.preventDefault();
+				usr = "s";
+				for( var i = 1; i < ut.rows.length; ) { // -1 due to submit
+                        
+					if(ut.rows[i].cells[0].firstChild.checked == true ) {
+						usr += ut.rows[i].cells[0].firstChild.value + "-" + ut.rows[i].cells[1].firstChild.value;
+						cnt++;
+						if(1 < ut.rows[i].cells[1].childNodes.length) {
+							for(var j = 1; j < ut.rows[i].cells[1].childNodes.length; j++ ) {
+								usr += "," + ut.rows[i].cells[1].childNodes[j].value;
+								cnt++;
+							}
+						}
+
+						if( ++i < ut.rows.length) {
+							usr += ".";
+						}
+					} else { i++; }
+					//$('mytxt').innerHTML += cb.checked.toString();
+				}
+				//$("usubmit").name = usr;
+				$("uReq").value = usr + ". ";
+				$("formch").submit();
+				restartCheckStatus(cnt);
+			}
+
+			var addNewCell = function (row, rowIdx, col, val) {                
+				//var row;
+				var cell;
+				var inp;
+
+				//row = ut.insertRow(rowIdx);
+				//for (var j = 0; j < nofCol; j++) {
+					cell = row.insertCell(col);
+					if (col == 0) {
+						var inp = document.createElement('input');
+						inp.type = 'checkbox';
+						//cb.id = 'cbx' + i.toString();
+						//cb.name = xmldoc[i-1].childNodes[j].innerHTML;
+						inp.value = val;
+						//cb.onclick = 'handleClick(this)';
+						cell.appendChild(inp);
+						cell.appendChild(document.createTextNode("Rm " + val));
+
+					} else if (col == 1) {
+						var inp = document.createElement('input');
+						inp.type = 'text';
+						inp.id = 'url' + rowIdx.toString();
+						inp.style = 'width:2em; font-size:40px;';
+						inp.value = val;
+						cell.appendChild(inp);
+					} else {
+						cell.innerHTML = val;
+					}
+				//}
+				////var cell1 = row.insertCell(0);
+				//// cell1.innerHTML = "NEW CELL1";
+				//$("utable").rows[rowIdx].cells[0].firstChild.checked = true;
+			}
+
+			var populateTable = function () {				
+				if( xmlHttp.readyState == 4 && xmlHttp.status == 200 ) {
+					var ut = $("utable");
+					var row; //var cell;
+
+					xmlResponse = xmlHttp.responseXML;
+					xmldoc = xmlResponse.getElementsByTagName("u");
+					numUser = xmldoc.length;
+
+					ut.rows[0].cells[0].firstChild.checked = true;
+
+					for (var i = 1; i <= numUser; i++) {					    
+
+						row = ut.insertRow(i);
+
+						for( var j = 0; j < xmldoc[0].childNodes.length; j++ ) {						    
+
+							addNewCell(row, i, j, xmldoc[i-1].childNodes[j].innerHTML); //addNewCell(row, rowIdx, col, val);
+
+							//cell = row.insertCell(j);
+							//if( j == 0 ) {
+							//	var cb = document.createElement('input');
+							//	cb.type = 'checkbox';
+							//	//cb.id = 'cbx' + i.toString();
+							//	//cb.name = xmldoc[i-1].childNodes[j].innerHTML;
+							//	cb.value = xmldoc[i-1].childNodes[j].innerHTML;
+							//	//cb.onclick = 'handleClick(this)';
+							//	cell.appendChild(cb);
+							//	cell.appendChild(document.createTextNode("Rm " +  xmldoc[i-1].childNodes[j].innerHTML));
+
+							//} else if ( j == 1 ) {
+							//	var inp = document.createElement('input');
+							//	inp.type = 'text';
+							//	inp.id = 'url' + i.toString();
+							//	inp.style = 'width:2em';
+							//	inp.value = xmldoc[i-1].childNodes[j].innerHTML;								
+							//	cell.appendChild(inp);
+							//} else {
+							//	cell.innerHTML = xmldoc[i-1].childNodes[j].innerHTML;
+							//}
+						}
+						//var cell1 = row.insertCell(0);
+						// cell1.innerHTML = "NEW CELL1";
+						ut.rows[i].cells[0].firstChild.checked = true;
+					}
+
+					$("usubmit").disabled = false;
+				}
+			}
+
+			var addMoreUrl = function (cb) {
+				var ut = $("utable");
+				if( cb.checked == true ) {
+					for( var i = 1; i < ut.rows.length; i++ ) {
+						var inp = document.createElement('input');
+						inp.type = 'text';
+						inp.id = "url_" + i.toString();		
+						inp.style = "width:2em; font-size:40px;";
+						inp.value = (parseInt(ut.rows[i].cells[1].firstChild.value)+2).toString();
+						ut.rows[i].cells[1].appendChild(inp);		
+					}
+				} else {
+					for( var i = 1; i < ut.rows.length; i++ ) {
+						ut.rows[i].cells[1].removeChild(ut.rows[i].cells[1].childNodes[1]);		
+					}
+				}
+			}
+
+			var addNewHost = function () {
+				var ut = $("utable");
+				var row; //var cell;
+				var len;
+
+				len = $("utable").rows.length;
+				row = ut.insertRow(len);			    
+
+				addNewCell(row, len, 0, len);
+				addNewCell(row, len, 1, 200);
+
+				for (var j = 2; j < 6; j++) {
+					addNewCell(row, len, j, "n/a");
+				}
+
+				ut.rows[len].cells[0].firstChild.checked = true;
+			}
+
+			var handleClick = function (cb) {				
+				updateCheckbox(cb.checked, 0);
+			}
+
+
+			window.onload = function () { 
+				setTimeout( 
+					function () {
+						if( xmlHttp.readyState == 0 || xmlHttp.readyState == 4 ){
+							xmlHttp.open('PUT','/xml?USST=1',true);
+							xmlHttp.onreadystatechange = populateTable;
+							xmlHttp.send(null);							
+						}
+					}
+					, 1000);
+
+				$("usubmit").disabled = true;
+			}
+		</script>
+	</head>
+	<body>
+		<h2>Status</h2>
+		<form id='formch' action='/ustatus?UPDATE=1' method='post'>
+			<input type='text' id='uReq' name='pReq' hidden>
+			<input type='button' id='usubmit' onclick='startPing(event)' value='Check Status'>
+		</form><br>
+		<table id='utable'>
+			<tr>
+				<th><input type='checkbox' name='r' value='0' onclick='handleClick(this)'>Select All</th>
+				<th>Url</th>
+				<th>Online</th>
+				<th>Card</th>
+				<th>Web</th>
+				<th>Login</th>
+			</tr>
+			<!--tr>
+				<td><input type='checkbox' name='r1-1' value='1' onclick='handleClick(this)'>Rm 1-1</td>
+				<td><input type='text' value='20'></td>
+				<td>?</td>
+				<td>n/a</td>
+				<td>n/a</td>
+				<td>n/a</td>
+			</tr-->
+		</table><br>
+		<input type='checkbox' onclick='addMoreUrl(this)'>More URL
+		<button onclick='restartCheckStatus(0)'>Get Result Again</button>
+		<button onclick='addNewHost()'>Add Host</button><br><br><br>
+			<i>
+				<a href = '/'>Smart Control</a><br><br><br>
+				<a href='/admin'> System Management </a><br><br><br>
+				<a href = '/login?DISCONNECT=YES'>Log Out</a><br><br>
+			</i>
+			<textarea id='mytxt' style="width: 100px; height:100px;"></textarea>
+	</body>
+</html>

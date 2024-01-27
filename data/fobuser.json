@@ -1,0 +1,15 @@
+{
+    "roomuser": "3",
+    "big": [
+        { "id": "31", "valid": "1", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+        { "id": "32", "valid": "0", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+        { "id": "33", "valid": "0", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" } ],
+    "small": [
+        { "id": "41", "valid": "1", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+        { "id": "42", "valid": "0", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+        { "id": "43", "valid": "0", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" } ],
+    "laundry": [
+        { "id": "51", "valid": "1", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+        { "id": "52", "valid": "0", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+        { "id": "53", "valid": "0", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" } ]
+}

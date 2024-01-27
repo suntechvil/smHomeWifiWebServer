@@ -1,0 +1,54 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true,
+                "path": [
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/xtensa-lx106-elf/lib/gcc/xtensa-lx106-elf/4.8.2/include",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/xtensa-lx106-elf/xtensa-lx106-elf/include",                    
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/sdk/include",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/sdk/lwip/include/netif",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/sdk/lwip2/include",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/variants/generic",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/cores/esp8266",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/cores/esp8266/spiffs",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/cores/esp8266/libb64",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/ESP8266mDNS",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/ESP8266WebServer/src",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/ESP8266WiFi/src",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/ArduinoOTA",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/DNSServer/src",
+                    "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/dummy",
+                    "${workspaceFolder}/**"                    
+                ]
+            },
+            "includePath": [
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/xtensa-lx106-elf/lib/gcc/xtensa-lx106-elf/4.8.2/include",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/xtensa-lx106-elf/xtensa-lx106-elf/include",                
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/sdk/include",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/sdk/lwip/include/netif",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/tools/sdk/lwip2/include",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/variants/generic",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/cores/esp8266",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/cores/esp8266/spiffs",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/cores/esp8266/libb64",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/ESP8266mDNS",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/ESP8266WebServer/src",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/ESP8266WiFi/src",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/ArduinoOTA",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/hardware/esp8266com/esp8266/libraries/DNSServer/src",
+                "${workspaceFolder}/../SmartDoorWifiWebServer_hal_lib/dummy",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "VS_PRJ",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "intelliSenseMode": "msvc-x64"
+        }
+    ],
+    "version": 4
+}

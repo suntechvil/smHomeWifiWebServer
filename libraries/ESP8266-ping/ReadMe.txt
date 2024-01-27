@@ -1,0 +1,1 @@
+To use the ping feature, you must download ESP8266-ping library.

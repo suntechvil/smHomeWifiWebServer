@@ -1,0 +1,297 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings</title>
+    <meta charset="UTF-8">
+    <style>
+        fieldset { background-color: lightyellow; }
+
+        table { border-collapse: collapse; }
+
+        fieldset, td, th { 
+            border: 1px solid #dddddd; 
+            padding: 4px; 
+
+        }
+
+        tr:nth-child(even) { background-color: #dddddd; }
+
+        input, a, select {
+            font-size: 40px;
+            text-align: center;
+        }
+
+        select.menu { width: 250px; }
+
+        select.cell { width: 140px; }
+
+        option { text-align: center; }
+
+        input[type=button] { margin-left: 50px; }
+
+        input[type=date] { width: 9em; }
+
+        input[name=fn], input[name=un] { width: 6em; }
+
+        input[name=sup], input[name=hs], input[name=sci] { width: 2em; }
+
+        input[name=cd], input[name=mc] { width: 3em; }
+
+        input[type=password] { width: 4em; }
+
+        label {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        form { display: inline-block; }
+
+        #room { background-color: Yellow; }
+
+        #msgwin {
+            width: 200px;
+            height: 100px;
+            margin-left:50px;
+        }
+    </style>
+    <script type='text/javascript' src='usettings.js'></script>
+    <script type='text/javascript'>
+        function showHelp() {
+            var hp = $('help');
+            hp.hidden = !hp.hidden;
+        }
+    </script>
+</head>
+
+
+<body>
+    <h2><u id='headUac'>User Account Settings</u>&ensp;&nbsp;<span id='resultMsg' style="color:red;">&nbsp;</span>&emsp;<i id='tblMsg' style="color:red;">&nbsp;</i></h2>
+
+    &ensp;<label for="room">* Room:</label>&nbsp;
+    <select id="room" class="menu" onchange='roomSelected(this)'>
+        <option value="default" selected hidden>&nbsp;&nbsp;select</option>
+        <option value="big">Big room</option>
+        <option value="small">Small room</option>
+        <option value="laundry">Laundry</option>
+    </select>
+    <form id='fGetusers' action='/usettings?GETVAL=1' method='post'>
+        <input type='text' id='rReq' name='rmReq' hidden>
+        <input type='button' id='getUsers' onclick='getRoomUsers(event, 1)' value='Get Users ' disabled>
+        <!--input type='button' id='getUsers' onclick='debugPopulateRoomUsers(event)' value='Get Users ' disabled-->
+    </form>
+    <input type='button' onclick='showHelp()' value='Help'>
+    <br><br>
+
+
+    &ensp;<label for='user'>* User:</label>&emsp;
+    <select id="user" class="menu" onchange='userSelected(this)' disabled>
+        <!--option value="default" selected>&nbsp;&nbsp;?&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option-->
+        <option value="default" selected hidden>&nbsp;&nbsp;select</option>
+        <!-->option value="1 (new)">1</option-->
+    </select>
+    <form id='fReadUser' action='/usettings?GETVAL=10' method='post'>
+        <input type='text' id='rUReq' name='ruReq' hidden>
+        <input type='button' id='readUser' onclick='readOneUser(event, 10)' value='Read User' disabled>
+    </form>
+    <form id='fScanAdd' action='/usettings?SETVAL=15' method='post'>
+        <input type='text' id='fSAReq' name='fsaReq' hidden>
+        <input type='button' id='scanAdd' onclick='scanAndAdd(event, 15)' value='Scan & Add' disabled>
+    </form>
+    <br><br><br>
+
+    <fieldset>
+        <!--h3>1. <u>Access Fob</u>: </h3-->
+        <legend>&lt; <b>User Fob Account (fob key)</b> &gt;</legend>
+
+        <!--label for='user'>* Select User: </label>
+    <select id="user" onchange='userSelected(this, 1)' disabled>
+        <option value="default" selected>?</option>
+        <option value="u1">1</option>
+        <option value="u2">2</option>
+        <option value="u3">3</option>
+        <option value="u4">4</option>
+    </select>
+    <form id='fReadfob' action='/usettings?GETVAL=10' method='post'>
+        <input type='button' id='readFob' onclick='readFobUser(event)' value='Read User' disabled>
+    </form-->
+        <form id='fScanfob' action='/usettings?GETVAL=20' method='post'>
+            <input type='text' id='sFReq' name='sfReq' hidden>
+            <input type='button' id='scanFob' onclick='scanUserFob(event, 20)' value='Scan a Fob'>
+        </form>
+        <form id='fSaveFobUser' action='/usettings?SETVAL=25' method='post'>
+            <input type='text' id='fSFUReq' name='fsfuReq' hidden>
+            <input type='button' id='saveFUser' onclick='saveFobUser(event, 25)' value='Save Fob User' disabled>
+        </form>
+        <form id='fFormatSecurity' action='/usettings?SETVAL=27' method='post'>
+            <input type='button' id='updateFSc' onclick='formatFobSecuirty(event, 27)' value='Format Fob' disabled>
+            <input type='text' id='fFcID' name='ffcId' hidden>
+            <label for='scIdx'>&nbsp;&nbsp;Security Index:</label>&nbsp;
+            <!--input type='text' id='fFsReq' name='ffsReq' style='width:60px;' value='n/a'-->
+            <input type='text' id='fFsReq' name='ffsReq' value='n/a' hidden>
+        </form>
+        <select id="scIx" class="sci">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="n/a">n/a</option>
+            <option value="all">all</option>
+        </select><br/>
+        <table id='fobTable'>
+            <tr>
+                <th>ID<br>(room/user)</th>
+                <th>Valid<br>User</th>
+                <th>Fob No.</th>
+                <th>Registration Date<br>(select checkbox for today)</th>
+                <th>Security<br>Code</th>
+                <th>Security<br>Update</th>
+                <th>Update Period<br>(days)</th>
+                <th>Delete</th>
+            </tr>
+            <tr>
+                <td>1 / 1</td>
+                <td><input type='checkbox' name='vu' onclick='handleClick(this)'></td>
+                <td><input type='text' name='fn' value='?' disabled></td>
+                <td>
+                    <input type='checkbox' name='rd' onclick='setToday()'>
+                    <input type='date' name='dt' disabled>
+                </td>
+                <td><input type='text' name='cd' value='1' disabled></td>
+                <td>
+                    <select id='sud' name='su' class="cell" onchange='scUpdateSelected(this)' disabled>
+                        <option selected>Off</option>
+                        <option>On</option>
+                        <option>Once</option>
+                        <option>Wifi</option>
+                        <option>Now</option>
+                        <option>Sync</option>                        
+                        <option hidden>Fail</option>
+                        <option hidden>n/a</option>
+                    </select>
+                </td>
+                <td><input type='text' name='sup' value='0' disabled></td>
+                <td><input type='checkbox' name='del' onclick='handleClick(this)'></td>
+            </tr>
+            <!--tr>
+            <td>1 / 2</td>
+            <td><input type='checkbox' name='rm' onclick='handleClick(this)'></td>
+            <td><input type='text' value='?' disabled></td>
+            <td><input type='checkbox' onclick='setToday(this)'>
+                <input type='date' name='d' disabled></td>
+            <td><input type='text' class='two' name='cd' value='?' disabled></td>
+            <td><input type='checkbox' name='dt' onclick='handleClick(this)'></td>
+        </tr-->
+        </table>
+    </fieldset><br><br>
+
+    <fieldset>
+        <!--h3>2. <u>User Account (wifi access)</u>: </h3-->
+        <legend>&lt; <b>User WiFi Account (wifi access)</b> &gt;</legend>
+
+        <!--label for='user2'>* Select User: </label>
+    <select id="user2" onchange='userSelected(this, 2)' disabled>
+        <option value="default" selected>?</option>
+        <option value="u1">1</option>
+        <option value="u2">2 (new)</option>
+        <option value="u3">3 (new)</option>
+        <option value="u4">4 (new)</option>
+    </select-->
+        <!--form id='fReadAcc' action='/usettings?GETVAL=20' method='post'>
+        <input type='text' id='aReq' name='aReq' hidden>
+        <input type='button' id='readAcc' onclick='readAccUser(event)' value='Read User' disabled>
+    </form-->
+        <form id='fReadMac' action='/usettings?GETVAL=30' method='post'>
+            <input type='text' id='fMacReq' name='fmacReq' hidden>
+            <input type='button' id='readMac' onclick='readUserMac(event, 30)' value='Read User Mac' disabled>
+        </form>
+        <form id='fSaveWifi' action='/usettings?SETVAL=35' method='post'>
+            <input type='text' id='fWifiReq' name='fwifiReq' hidden>
+            <input type='button' id='saveWifi' onclick='saveWifiUserOrKeyGen(event, 35)' value='Save WiFi User' disabled>
+        </form>
+        <form id='fKeyGen' action='/usettings?SETVAL=37' method='post'>
+            <input type='text' id='fKeyGenReq' name='fkeyGenReq' hidden>
+            <input type='button' id='genKey' onclick='saveWifiUserOrKeyGen(event, 37)' value='Enable Key Generation' disabled>
+        </form><br/>
+        <table id='wifiTable'>
+            <tr>
+                <th>ID<br>(loc./user)</th>
+                <th>Valid<br>User</th>
+                <th>User Name (Initial)<br>(Min. 2, Max. 6 letters)</th>
+                <th>Password (8 letters)/<br>Confirm Password</th>
+                <th>Registration Date<br>(select checkbox for today)</th>
+                <th hidden>Host I</th>
+                <th hidden>Mac I</th>
+                <th hidden>Host II</th>
+                <th hidden>Mac II</th>
+                <th>Delete</th>
+            </tr>
+            <tr>
+                <td>1 / 1</td>
+                <td><input type='checkbox' name='vu' value='1' onclick='handleClick(this)'></td>
+                <td><input type='text' name='un' value='?' disabled></td>
+                <td>
+                    <input type='password' name='p1' value='????????' onclick='handleClick(this)' disabled><br />
+                    <input type='password' name='p2' value='????????' onclick='handleClick(this)' disabled>
+                </td>
+                <td>
+                    <input type='checkbox' name='rd' value='0' onclick='setToday(this)'>
+                    <input type='date' name='dt' disabled>
+                </td>
+                <td hidden><input type='text' name='hs' value='255'></td>
+                <td hidden><input type='text' name='mc' value='FF:FF:FF:FF:FF:FF'></td>
+                <td hidden><input type='text' name='hs' value='255'></td>
+                <td hidden><input type='text' name='mc' value='FF:FF:FF:FF:FF:FF'></td>
+                <td><input type='checkbox' name='del' value='0' onclick='handleClick(this)'></td>
+            </tr>
+            <!----tr>
+            <td>1 / 2</td>
+            <td><input type='checkbox' name='vu' value='0' onclick='handleClick(this)'></td>
+            <td><input type='text' name='un' value='?' disabled></td>
+            <td><input type='password' class='three' name='p1' value='????????' onclick='handleClick(this)' disabled><br />
+                <input type='password' class='three' name='p2' value='????????' onclick='handleClick(this)' disabled>
+            </td>
+            <td><input type='checkbox' name='rd' value='0' onclick='setToday(this)'>
+                <input type='date' name='dt' disabled>
+            </td>
+            <td hidden><input type='text' class='two' name='hs' value='20'></td>
+            <td hidden><input type='text' name='mc' value='00:00:00:00:00:00'></td>
+            <td hidden><input type='text' class='two' name='hs' value='n/a'></td>
+            <td hidden><input type='text' name='mc' value='FF:FF:FF:FF:FF:FF'></td>
+            <td><input type='checkbox' name='del' value='0' onclick='handleClick(this)'></td>
+        </tr-->
+        </table><br>
+        <input type='checkbox' id='wifiMore' onclick='viewMoreCol(this)'>More
+        <button onclick='restartReqResponse(0)'>Get Result Again</button>
+        <button onclick='addNewTable()'>Add Host</button>        
+    </fieldset><br><br><br>
+    <i style="float:left">
+        <a href='/'>Smart Control</a><br><br><br>
+        <a href='/admin'> System Management </a><br><br><br>
+        <a href='/login?DISCONNECT=YES'>Log Out</a>
+    </i>
+    <textarea id='msgwin'></textarea>
+    <p id="help" style="float:right; font-size:1.5em" hidden>
+        Help (ver. 3.6.0.0):<br />
+        - Scan &amp; Add: button to add a Fob for new user. Select a room and a new user ID<br />
+        &nbsp;&nbsp;&nbsp;in the 'User' first and then click on the button, and tap your Fob<br />
+        &nbsp;&nbsp;&nbsp;to the Fob reader.<br />
+        - Scan a Fob: the button to view Fob information. click on it and then tap your Fob<br />
+        &nbsp;&nbsp;&nbsp; to the Fob reader.<br />
+        - Save Fob User: the button to save information in the 'User Fob Account' table<br />
+        &nbsp;&nbsp;&nbsp; into the system.<br />
+        - Format Fob: the button to activate one or all of SC code location. click on it when<br />
+        &nbsp;&nbsp;&nbsp;Security Index is 'n/a' to activate all SC code location or after<br />
+        &nbsp;&nbsp;&nbsp;replacing 'n/a' to 0, 1, 2, or 3 to activate only one SC code location<br />
+        - Security Index: Index to the location where the Security Code (SC) is saved in the Fob.<br />
+        &nbsp;&nbsp;&nbsp;Valid index is 0, 1, 2, or 3.<br />
+        - Security Code (SC): the security code in the Fob. Do not change it directly.<br />
+        - Security Update: following options are to select how to update the SC;<br />
+        &nbsp;&nbsp;&nbsp;'Off' to turn the SC update mode off. <br />
+        &nbsp;&nbsp;&nbsp;'On' to get the SC updated every x days/accesses.<br />
+        &nbsp;&nbsp;&nbsp;'Once' to get the SC updated after x days/accesses.<br />
+        &nbsp;&nbsp;&nbsp;'Wifi' to get the SC updated after the door is opend by the WiFi user.<br />
+        &nbsp;&nbsp;&nbsp;'Now' to force the Fob SC get updated NOW in order to re-activate the Fob.<br />
+        &nbsp;&nbsp;&nbsp;'Sync' to force the Fob SC get synchronized with the SC in the system. <br />
+    </p><br />
+</body>
+</html>

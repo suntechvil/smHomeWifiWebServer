@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "P:\\project\\esp8266ex\\SmartDoorWifiWebServer"
+		},
+		{
+			"path": "P:\\project\\esp8266ex\\SmartDoorWifiWebServer_hal_lib"
+		}
+	],
+	"settings": {
+		"editor.autoClosingBrackets": "never"
+	}
+}

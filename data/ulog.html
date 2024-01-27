@@ -1,0 +1,903 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>View Logs</title>
+        <meta charset="UTF-8">
+        <style>
+            a, input, select, #usubmit {
+                font-size:35px;
+            }
+             
+            table {    
+                border-collapse: collapse;                
+            }
+            td, th {
+                border: 1px solid #dddddd;    
+                padding: 8px;
+            }
+            tr:nth-child(even) {
+                background-color: #dddddd;
+            }
+            span { 
+                display: inline-block; 
+                margin-left: 5px;
+            }
+            #msgwin {
+                width: 200px;
+                height: 100px;
+                margin-left:50px;
+            }
+        </style>
+        <script type='text/javascript'>
+var $ = function(id) { return document.getElementById(id);}
+
+var sent = {
+    typeIx: 0,
+    roomIx: 0,
+    userIx: 0,
+    logIx: 0,
+    preLogIx: 1,
+    startDate: new Date(),
+    endDate: new Date(),
+    curReqVal: "",
+    nofLog: 0
+};
+
+var alog = {
+    user: "n/a",
+    valid: false,    
+    fob: false,
+    open: false,
+    year: false,
+    mon: "n/a",
+    day: "n/a",
+    time: "n/a",
+    fobId: "n/a",
+    cmt: ""
+};
+
+var waitingRspId = 0;            
+var maxTimerRptCnt;
+var myRspTimer;
+var xmlQueryCnt = 0;
+var numRegUser = 0;             
+
+var xmlHttp = new CreateXmlHttpObject();
+var xmlResponse;
+
+function CreateXmlHttpObject() {
+    var xHttp;
+    if(window.XMLHttpRequest){
+        xHttp = new XMLHttpRequest();
+    }else{
+        xHttp = new ActiveXObject('Microsoft.XMLHTTP');
+    }
+    return xHttp;
+}
+
+
+function ClearReqRespondTimer() {
+    if (xmlQueryCnt === maxTimerRptCnt) {
+        clearInterval(myRspTimer);
+        xmlQueryCnt = 10 + maxTimerRptCnt;
+        disableControl(false);
+        waitingRspId = 0;
+    }
+}
+
+var reqRespond = function() {
+    if( xmlHttp.readyState === 0 || xmlHttp.readyState === 4 ){
+        if (xmlQueryCnt < maxTimerRptCnt) {
+            var cnt;
+            var arg;
+            xmlQueryCnt++;
+            cnt = maxTimerRptCnt - xmlQueryCnt;
+            //arg = '/xml?GETL=' + waitingRspId + '&IDX=' + sent.curReqVal + '&CDN=' + cnt; //.toString(16).toUpperCase();
+            arg = '/xml?GULG=' + waitingRspId + '&IDX=' + sent.logIx.toString().toUpperCase() + '&CDN=' + cnt; //.toString(16).toUpperCase();            
+            xmlHttp.open('PUT',arg,true);
+            xmlHttp.onreadystatechange = handleServerResponse;
+            xmlHttp.send(null);
+            
+        } else {
+            ClearReqRespondTimer();
+        }
+    }
+}
+
+var startReqRespond = function(cmd, tInt) {
+            
+    if (waitingRspId === 0) {
+        if (cmd > 0) {
+            waitingRspId = cmd;
+            myRspTimer = setInterval(reqRespond, tInt);
+            return 0;
+        } else ShowResult("Invalid command " + cmd, false);
+    } else ShowResult("There is a pending command " + waitingRspId, false);
+
+    return 1;
+}
+
+var restartReqResponse = function (cmd, tIntv, rpt) {
+    var r;
+    maxTimerRptCnt = rpt;
+    xmlQueryCnt = 0;
+
+    r = startReqRespond(cmd, tIntv);
+
+    if (r == 0) disableControl(true);
+    else disableControl(false);
+}
+            
+//var sendCommand = function(src) {
+//    var usr;
+//    var cnt = 0;
+//    var ut = $("utable");
+                
+//    usr = "s";
+//    for( var i = 1; i < ut.rows.length; ) { // -1 due to submit
+                        
+//        if(ut.rows[i].cells[0].firstChild.checked == true ) {
+//            usr += ut.rows[i].cells[0].firstChild.value + "-" + ut.rows[i].cells[1].firstChild.value;
+//            cnt++;
+//            if(1 < ut.rows[i].cells[1].childNodes.length) {
+//                for(var j = 1; j < ut.rows[i].cells[1].childNodes.length; j++ ) {
+//                    usr += "," + ut.rows[i].cells[1].childNodes[j].value;
+//                    cnt++;
+//                }
+//            }
+
+//            if( ++i < ut.rows.length) {
+//                usr += ".";
+//            }
+//        } else { i++; }
+//        //$('msgwin').innerHTML += cb.checked.toString();
+//    }
+//    //$("usubmit").name = usr;
+//    $("uReq").value = usr + ". ";
+//    $("formch").submit();
+//    restartReqResponse(cnt);
+//}
+
+
+////
+var getLog = function (e, me, cmd) {
+    if (!e) {
+        e = window.event; // for IE
+        e.returnValue = false;
+    } else {
+        e.preventDefault();
+    }
+
+    //initMsgWindow();
+    ShowResult("", false);
+
+    if (waitingRspId == 0) {
+        var ltp = $('ltype');
+
+        if (ltp.selectedIndex !== 0) {
+            //var b;
+            let r = $('room').selectedIndex;
+            let u = $('user').selectedIndex;
+                        
+            if (r !== 0) {
+                if (u !== 0) {                               
+                    let dt;
+                    let str, rq;
+                    let v;
+                    const lgt = $('logtbl');
+
+                    switch (ltp.selectedIndex) {
+                        case 1:
+                            break;
+                        case 2:
+                            break;
+                    }
+
+                    sent.typeIx = ltp.selectedIndex;
+                    sent.roomIx = r;
+                    sent.userIx = u;
+
+                    v = parseInt($('logIx').value);
+                    sent.preLogIx = v;
+
+                    if (cmd !== 1) {
+                    //    v = parseInt($('logIx').value);
+                    //} else {
+
+                        $('fgpnLog').action = "/ulog?GETVAL=" + cmd.toString();
+
+                        //v = sent.logIx + 1;
+                        if (cmd == 20) {
+                            v += 10;                            
+                        } else if (cmd == 10) {
+                            if (v > 10) v -= 10;
+                            else v = 1;
+                        }
+                        $('logIx').value = v;
+                    }
+
+                    sent.logIx = v - 1;
+
+                    //if (cmd == 10) {
+                    //    if (sent.logIx < 10) sent.logIx = 0;
+                    //    else sent.logIx -= 10;
+                    //} else if (cmd == 20) {
+                    //    sent.logIx += 10;
+                    //}
+
+                    str = sent.roomIx.toString() + sent.userIx.toString() + ":";                    
+                    //sent.curReqVal.concat(sent.typeIx.toString(), ":", sent.roomIx.toString(), ":", sent.userIx.toString(), ":", sent.logIx.toString(), ":");
+                    sent.curReqVal = sent.typeIx.toString().concat(":", str, sent.logIx.toString(16).toUpperCase(), ":A:");
+
+                    dt = sent.startDate;
+                    str = dt.getFullYear() + "-" + ((dt.getMonth() < 9) ? "0" : "") + (dt.getMonth() + 1) + "-" + ((dt.getDate() < 10) ? "0" : "") + dt.getDate();
+
+                    sent.curReqVal = sent.curReqVal.concat(str, ":");
+                    dt = sent.endDate;
+                    str = dt.getFullYear() + "-" + ((dt.getMonth() < 9) ? "0" : "") + (dt.getMonth() + 1) + "-" + ((dt.getDate() < 10) ? "0" : "") + dt.getDate();
+                    sent.curReqVal = sent.curReqVal.concat(str);
+
+                    //disableControl(true);
+
+                    if (cmd == 1) {
+                        $('lReq').value = sent.curReqVal;
+                        $("fgLog").submit();
+                        
+                    } else { //pre nxt
+                        $('pnReq').value = sent.curReqVal;
+                        $("fgpnLog").submit();
+                    }
+                    restartReqResponse(cmd, 1500, 3);
+                } else {
+                    ShowResult("Please select a user !", false);
+                }
+            } else {
+                ShowResult("Please select a room !", false);
+            }
+        } else {
+            ShowResult("Please select a log type !", false);
+        }
+    } else ShowBusyMessage();
+}
+
+function ShowResult(msg, pass) {
+    var r = $('resultMsg');
+    if (pass == true) {
+        r.style.color = 'green';
+    } else {
+        r.style.color = 'red';
+    }
+    r.innerHTML = msg;
+
+    //$('msgwin').style.fontcolor('red');
+    //$('resultMsg').innerHTML = "<span style='color:red'>Update Failed!</span>";
+}
+
+
+function ShowBusyMessage() {
+    $('msgwin').innerHTML = "Busy waiting for response of earlier request.";
+}
+
+////
+var logTypeChanged = function (e, me) {
+    if (!e) {
+        e = window.event; // for IE
+        e.returnValue = false;
+    } else {
+        e.preventDefault();
+    }
+                
+    const rm = $('room');
+    const ur = $('user'); //.selectedIndex;
+    let r = true;
+    let u = true;                
+
+    switch (me.selectedIndex) {
+        case 1:
+            //ur[0].innerHTML = 'User';
+            r = false;
+            u = false;
+            rm.selectedIndex = 0;
+            ur.selectedIndex = 0;
+            break;
+        case 2:
+            //ur[0].innerHTML = 'Room';
+            r = false;
+            ur.selectedIndex = 8;
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+            r = false;
+            u = false;
+        case 3:
+            rm.selectedIndex = 8;
+            ur.selectedIndex = 8;
+            break;
+    }
+
+    rm.hidden = r;
+    ur.hidden = u;
+}
+
+////
+var enableDate = function (e) {
+    if (!e) {
+        e = window.event; // for IE
+        e.returnValue = false;
+    } else {
+        e.preventDefault();
+    }
+
+    var b = true;
+    if ($('enDate').checked == true) b = false;                
+    $('sdt').hidden = b;
+    $('edt').hidden = b;
+}
+
+////
+var showNextLog = function () {
+    var lt = $("logtbl");
+    var row; //var cell;
+    var len;
+
+    len = lt.rows.length;
+    row = lt.insertRow(len);
+
+    addNewCell(row, len, 0, len);
+    //addNewCell(row, len, 1, len);
+
+    for (var j = 1; j < 11; j++) {
+        addNewCell(row, len, j, "n/a");
+    }
+}
+
+////
+function disableControl (b) {
+
+    $('ltype').disabled = b;
+    $('room').disabled = b;
+    $('user').disabled = b;
+    $('logIx').disabled = b;
+
+    $('enDate').disabled = b;
+    $('sdt').disabled = b;
+    $('edt').disabled = b;
+                
+    $('gLog').disabled = b;
+}
+
+////
+var updateTableRow = function (rowIdx) {
+
+    let t = $("logtbl");
+
+    if (rowIdx < t.rows.length) {
+        let i = rowIdx + sent.logIx;
+                        
+        //if ((fobUser[i][0] > 0) || (waitingRspId === CMD_SCAN)) {
+            let su;
+            let tds = t.rows[rowIdx].querySelectorAll("td");
+
+            tds[0].textContent = i;
+            tds[1].textContent = alog.user;
+            tds[2].children.vu.checked = alog.valid;            
+            tds[3].children.fb.checked = alog.fob;
+            tds[4].children.op.checked = alog.open;
+            tds[5].children.yr.checked = alog.year;
+            tds[6].textContent = alog.mon;
+            tds[7].textContent = alog.day;
+            tds[8].textContent = alog.time;
+            tds[9].textContent = alog.fobId;
+            tds[10].textContent = alog.cmt;
+        //}// else ClearTableRow(rowIdx);
+    }
+}
+
+////
+var updateTableCol = function (rowIdx, cIdx, val) {
+
+    let t = $("logtbl");
+    
+    if (rowIdx < t.rows.length) {
+        if (cIdx < 11) {
+            //let i = rowIdx - 1 + sent.logIx;
+                        
+            //let su;
+            let tds = t.rows[rowIdx].querySelectorAll("td");
+        
+            switch (cIdx) {
+                case 2:
+                    tds[cIdx].children.vu.checked = val;
+                    break;
+                case 3:
+                    tds[cIdx].children.fb.checked = val;
+                    break;
+                case 4:                    
+                    tds[cIdx].children.op.checked = val;
+                    break;
+                case 5:
+                    tds[cIdx].children.yr.checked = val;
+                    break;
+
+                default:
+                    tds[cIdx].textContent = val;
+                    //tds[cIdx].innerHTML = val;
+                    //tds[cIdx].innerText = val;
+                    break;
+            }
+        }        
+    }
+}
+
+////
+var packLogWithDefault = function () {
+    alog.user = "n/a";
+    alog.valid = false;    
+    alog.fob = false;
+    alog.open = false;
+    alog.year = false;
+    alog.mon = ""; //"n/a";
+    alog.day = ""; //"n/a";
+    alog.time = ""; //"n/a";
+    alog.fobId = ""; //"n/a";
+    alog.cmt = "";
+}
+
+////
+var updateTableWithDefault = function () {
+    packLogWithDefault();
+    for (var i = 1; i < 11; i++) {
+        updateTableRow(i);
+    }
+}
+
+////
+var populateTableCol = function () {
+    var sel;
+    let i, j, k, n, ln, b, tm;
+    //let t = $("logtbl");
+    let xd;
+    let f = [], fd = new Object(10);
+
+    xmldoc = xmlResponse.getElementsByTagName('num');
+    ln = parseInt(xmldoc[0].textContent, 16);
+
+    if (ln === 0) {
+        message = "No match logs !!";
+        return false;
+    }
+
+    updateTableWithDefault();
+
+    sent.nofLog = ln;
+    
+    //sel = $('logtbl');
+    i = 0;
+    ln++;
+    for (j = 1, n = sent.logIx + 1; j < ln; j++, n++) {
+        //sel = "r" + i.toString();
+        updateTableCol(j, i, n.toString())
+    }
+    i = 1;
+    xmldoc = xmlResponse.getElementsByTagName('s');
+    for (j = 1; j < ln; j++) {
+        k = xmldoc[j - 1].textContent;        
+        n = parseInt(k, 16);
+        if (n == 0) {
+            f.push(j);
+
+        } else {
+            updateTableCol(j, i, k);
+            b = false;
+            if ((n & 0x80) == 0) {
+                //if (n > 0)
+                    b = true;
+            }
+
+            updateTableCol(j, i + 1, b);
+        }
+    }
+
+    i = 3;
+
+    xmldoc = xmlResponse.getElementsByTagName('f');
+    for (j = 1; j < ln; j++) {
+
+        b = false;
+        for (k = 0; k < f.length; k++) {
+            if (j == f[k]) {
+                b = true;
+                ////fd[k].push(xmldoc[j - 1].textContent);
+                //if (j > 1)
+                    k = j - 1;
+                //else k = j;
+                //updateTableCol(k, 9, xmldoc[j - 1].textContent);
+                ////packLogWithDefault();
+                ////updateTableRow(j);
+                updateTableCol(j, 9, xmldoc[j - 1].textContent);
+                updateTableCol(j, 10, "fob ID of #" + (k + sent.logIx));
+                break;
+            }
+        }
+        if (b == true) continue;
+
+        n = parseInt(xmldoc[j-1].textContent, 16);
+        
+        if ((n & 0x80) === 0) b = true;
+        updateTableCol(j, i, b);
+
+        //b = false;
+        //if ((n & 0x40) > 0) b = true;
+        //updateTableCol(j, i + 1, b);
+
+        b = false;
+        if ((n & 0x20) === 0) b = true;
+        updateTableCol(j, i + 1, b);
+
+        b = false;
+        if ((n & 0x10) > 0) b = true;
+        updateTableCol(j, i + 2, b);
+    }
+
+    xmldoc = xmlResponse.getElementsByTagName('m');
+    for (j = 1; j < ln; j++) {
+        b = false;
+        for (k = 0; k < f.length; k++) {
+            if (j == f[k]) {
+                b = true;
+                //fd[k].push(xmldoc[j - 1].textContent);
+                break;
+            }
+        }
+        if (b == true) continue;
+
+        updateTableCol(j, 6, parseInt(xmldoc[j-1].textContent));
+    }
+
+    xmldoc = xmlResponse.getElementsByTagName('d');
+    for (j = 1; j < ln; j++) {
+
+        b = false;
+        for (k = 0; k < f.length; k++) {
+            if (j == f[k]) {
+                b = true;
+                //fd[k].push(xmldoc[j - 1].textContent);
+                break;
+            }
+        }
+        if (b == true) continue;
+
+        updateTableCol(j, 7, parseInt(xmldoc[j-1].textContent));
+    }
+
+    xmldoc = xmlResponse.getElementsByTagName('h');
+    xd = xmlResponse.getElementsByTagName('i');
+    for (j = 1; j < ln; j++) {
+
+        b = false;
+        for (k = 0; k < f.length; k++) {
+            if (j == f[k]) {
+                b = true;
+                //fd[k].push(xmldoc[j - 1].textContent);
+                break;
+            }
+        }
+        if (b == true) continue;
+
+        tm = parseInt(xmldoc[j - 1].textContent).toString().padStart(2, '0') + ":" + parseInt(xd[j - 1].textContent).toString().padStart(2, '0');
+
+        updateTableCol(j, 8, tm);
+    }
+
+    //if (f.length > 0) {
+    //    for (j = 1; j < ln; j++) {
+    //        for (k = 0; k < f.length; k++) {
+    //            if (j == f[k]) {
+    //                tm = "";
+    //                for (i = 0; i < 4; i++) {
+    //                    tm += fd[k][i];                        
+    //                }
+
+    //                updateTableCol(j, 9, tm);
+    //            }
+    //        }
+    //    }
+    //}
+
+    return true;
+}
+
+
+var handleServerResponse = function() {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+        var message = "";
+        let b = false;
+        if (xmlQueryCnt <= maxTimerRptCnt) {
+            //if (xmlHttp.responseXML) $('msgwin').textContent = "No responseXML found!";
+            if (xmlHttp.responseXML) ShowResult("No responseXML found!", false);
+
+            xmlResponse = xmlHttp.responseXML;
+
+            xmldoc = xmlResponse.getElementsByTagName('rlt');
+
+            //if (xmldoc[0].innerHTML.toString() === 'ok') { // got rid of toString() since it doesn't work in IE.
+            //if (xmldoc[0].firstChild.nodeValue === 'ok') {
+            if (xmldoc[0].textContent === 'ok') {
+                var cmd;
+                var sel;
+                var n, i, ln;
+                const lgt = $('logtbl');
+
+                xmldoc = xmlResponse.getElementsByTagName('cmd');
+                //cmd = xmldoc[0].innerHTML.toString(); // got rid of toString() since it doesn't work in IE.
+                cmd = xmldoc[0].textContent; //firstChild.nodeValue;
+                xmldoc = xmlResponse.getElementsByTagName('idx');
+                //i = parseInt(xmldoc[0].innerHTML.toString(); // got rid of toString() since it doesn't work in IE.
+                i = parseInt(xmldoc[0].textContent, 16);
+                xmldoc = xmlResponse.getElementsByTagName('num');
+                ln = parseInt(xmldoc[0].textContent, 16);
+
+                if (i === sent.logIx) {
+                    switch (cmd) {
+                        case '1':
+                        case '10': // previous
+                        case '20': // next
+
+                            if (xmlQueryCnt < maxTimerRptCnt) xmlQueryCnt = maxTimerRptCnt;
+
+                            if (populateTableCol() === false) {
+                                message = "No match logs !!";
+                                break;
+                            }
+
+                            b = true;
+                            message = "  Got the list of access logs !";
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    message = "Mismatched log index: " + xmldoc[0].textContent;
+                }
+                //} else if (xmldoc[0].innerHTML.toString() === 'ng') {
+            } else if (xmldoc[0].textContent === 'ng') { // replaced innerHTML.toString() with firstChild.nodeValue for IE.
+
+                xmlQueryCnt = maxTimerRptCnt;
+                //xmldoc = xmlResponse.getElementsByTagName('cmd');
+                //cmd = xmldoc[0].innerHTML.toString();
+                //cmd = xmldoc[0].textContent;
+
+                xmldoc = xmlResponse.getElementsByTagName('err');
+
+                message = "   Failed !";
+
+                if (xmldoc == undefined) {
+                    $('msgwin').textContent = "Error Code: n/a";
+
+                } else {
+                    cmd = xmldoc[0].textContent;
+                    $('msgwin').textContent = "Error Code: " + cmd;
+                    if (cmd == '250') message = "   Failed (no match in the range) !";
+                    else if (cmd == '251') message = "   Failed (out of range) !";
+                }
+
+            } else {
+                $('msgwin').textContent = "   please wait! count: " + xmlQueryCnt;
+            }
+        } else {
+            message = "   please try it again !";
+        }
+
+        //$('msgwin').innerHTML = message;
+        //$('msgwin').textContent = message;
+        ShowResult(message, b);
+
+        if (b == false) {
+            $('logIx').value = sent.preLogIx;
+        }
+        ClearReqRespondTimer();
+
+    } else if (xmlQueryCnt > maxTimerRptCnt) {
+        $('logIx').value = sent.preLogIx;
+
+        ShowResult("   please try it again !", false);
+    }
+}
+
+////
+var addNewCell = function (row, rowIdx, col, val) {                
+    //var row;
+    var cell;
+    var inp;
+
+    //row = ut.insertRow(rowIdx);
+    //for (var j = 0; j < nofCol; j++) {
+        cell = row.insertCell(col);
+
+        if ( (col > 1) && (col < 6) ) {
+            var inp = document.createElement('input');
+            inp.type = 'checkbox';
+            //cb.id = 'cbx' + i.toString();
+            //cb.name = xmldoc[i-1].childNodes[j].innerHTML;                        
+            switch (col) {
+                case 2:
+                    inp.name = "vu";
+                    break;
+                case 3:
+                    inp.name = "fb";
+                    break;
+                case 4:                    
+                    inp.name = "op";
+                    break;
+                case 5:
+                    inp.name = "yr";
+                    break;
+            }
+
+            if (val !== true) val = false;
+            inp.value = val;
+            //cb.onclick = 'handleClick(this)';
+
+            cell.appendChild(inp);
+            //cell.appendChild(document.createTextNode("Rm " + val));
+
+        //} else if (col == 1) {
+        //    var inp = document.createElement('input');
+        //    inp.type = 'text';
+        //    inp.id = 'url' + rowIdx.toString();
+        //    inp.style = 'width:2em; font-size:40px;';
+        //    inp.value = val;
+        //    cell.appendChild(inp);
+        } else if (col < 10) {
+            cell.innerHTML = val;
+            //cell.textContent = val;
+        }
+    //}
+    ////var cell1 = row.insertCell(0);
+    //// cell1.innerHTML = "NEW CELL1";
+    //$("utable").rows[rowIdx].cells[0].firstChild.checked = true;
+}
+
+////
+var addNewRow = function () {
+    var lt = $("logtbl");
+    var row; //var cell;
+    var len;
+
+    len = lt.rows.length;
+    row = lt.insertRow(len);                
+
+    addNewCell(row, len, 0, len);
+    //addNewCell(row, len, 1, len);
+
+    for (var j = 1; j < 11; j++) {
+        addNewCell(row, len, j, "n/a");
+    }
+
+    //ut.rows[len].cells[0].firstChild.checked = true;
+}
+
+////
+//var handleClick = function (cb) {                
+//    updateCheckbox(cb.checked, 0);
+//}
+
+////
+window.onload = function () {
+    var dt = new Date();
+    for (var i = 0; i < 10; i++) {
+        addNewRow();
+    }
+    $('edt').value = dt.getFullYear() + "-" + ((dt.getMonth() < 9) ? "0" : "") + (dt.getMonth() + 1) + "-" + ((dt.getDate() < 10) ? "0" : "") + dt.getDate();
+}
+        </script>
+    </head>
+    <body>
+        <h2>View User Log&emsp;<span id='resultMsg' style="color:red;">&nbsp;</span></h2>
+        <span>              
+              <select id="ltype" onchange='logTypeChanged(event, this)'>
+                   <option value="default" type='font-color:grey' selected>Log Type</option>
+                   <option value="1">One User</option>                   
+                   <option value="2">One Room</option>                   
+                   <option value="3">All Rooms</option>
+                   <option value="4">Unknown</option>
+                   <option value="5">Open Fail</option>
+                   <option value="6">Fob Open</option>
+                   <option value="7">Wifi Open</option>
+                   <option value="8">New Fob</option>
+              </select>&emsp;
+              <select id="room" hidden>
+                   <option value="default" selected>Room</option>
+                   <option value="1">1</option>
+                   <option value="2">2</option>
+                   <option value="3">3</option>
+                   <option value="4">4</option>
+                   <option value="5">5</option>
+                   <option value="6">6</option>
+                   <option value="7">7</option>
+                   <option value="8">all</option>
+              </select>&emsp;
+              <select id="user" hidden>
+                   <option value="default" selected>User</option>
+                   <option value="1">1</option>
+                   <option value="2">2</option>
+                   <option value="3">3</option>
+                   <option value="4">4</option>
+                   <option value="5">5</option>
+                   <option value="6">6</option>
+                   <option value="7">7</option>
+                   <option value="8">all</option>
+              </select>&emsp;
+              <!--select id="logIx">
+                   <option value="default" selected>Select Log #</option>
+                   <option value="ix1">10</option>
+                   <option value="ix2">20</option>
+                   <option value="ix3">30</option>
+                   <option value="ix4">40</option>
+                   <option value="ix5">50</option>
+                   <option value="ixTyp">type #</option>
+              </select-->
+              <label for='logIx'>Index to Begin Log:</label>
+              <input type='text' id='logIx' name='lix' value='1' size='1'>             
+         </span><br><br>
+         <span>
+              <input type='checkbox' id='enDate' name='enDate' onchange='enableDate(event)'>
+              <label for='enDate'>Use Search Date</label>
+              <input type='date' id='sdt' name='sdt' hidden>
+              <input type='date' id='edt' name='edt' hidden>
+         </span><br><br>
+        <form id='fgLog' action='/ulog?GETVAL=1' method='post'>
+                  <input type='text' id='lReq' name='lReq' hidden>
+                  <!--input type='text' id='lIdx' name='lIdx' hidden>
+                  <input type='text' id='rDt' name='rDt' hidden-->
+                  <input type='button' id='gLog' onclick='getLog(event, this, 1)' value='Get Log'>
+        </form><br><br>
+        <table id='logtbl'>
+            <tr>
+                <th>#</th>
+                <th>User</th>
+                <th>Valid</th>
+                <th>Fob</th>
+                <th>Open</th>
+                <th>Year</th>
+                <th>Month</th>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Fob ID</th>
+                <th>Comment</th>
+            </tr>
+            <!--tr>
+                <td>1</td>
+                <td>n/a</td>
+                <td><input type='checkbox' name='vu' value='false'></td>
+                <td><input type='checkbox' name='fb' value='false'></td>
+                <td><input type='checkbox' name='op' value='false'></td>
+                <td><input type='checkbox' name='yr' value='false'></td>                
+                <td>n/a</td>
+                <td>n/a</td>
+                <td>n/a</td>
+                <td>n/a</td>
+                <td></td>
+            </tr-->
+        </table><br>
+        
+        <!--button onclick='restartCheckStatus(0)'>Previous</button>
+        <button onclick='showNextLog()'>Next</button><br><br><br-->
+        <span>
+            <form id='fgpnLog' action='/ulog?GETVAL=' method='post'>
+                <input type='text' id='pnReq' name='lReq' hidden>                
+                <input type='button' id='gPLog' onclick='getLog(event, this, 10)' value='Previous Page'>
+                <input type='button' id='gNLog' onclick='getLog(event, this, 20)' value='Next Page'>
+            </form>
+        </span><br><br><br>
+        <i>
+              <a href = '/'>Smart Control</a><br><br><br>
+              <a href='/admin'> System Management </a><br><br><br>
+              <a href = '/login?DISCONNECT=YES'>Log Out</a><br><br>
+         </i>
+         <textarea id='msgwin' style="width: 500px; height:100px;"></textarea>
+    </body>
+</html>

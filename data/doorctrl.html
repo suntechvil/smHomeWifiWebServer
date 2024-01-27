@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html>
+    <title>Door Control</title>
+    <meta charset="UTF-8">
+     <head>
+         <!--link rel='stylesheet' type='text/css' href='smhome.css'>
+         <script type='text/javascript' src='smhome.js'></script-->
+         <style>
+             header, footer {
+                 padding:1em;
+                 color:white;
+                 background-color:black;
+                 clear:left;
+                 text-align:center;
+             }
+             
+             div { 
+                 margin: 20px 50px 20px 50px;
+             }
+             
+             a { font-size:30px; 
+                 margin-left: 120px;
+             }
+             
+             input.main {
+                 outline:none;
+                 font-size:40px;
+                 width:100%;
+                 height:100px;
+                 border-radius:50px;
+             }
+
+             button {
+                 outline:none;
+                 margin-left:25px;
+                 font-size:30px;
+                 width:150px;
+                 height:70px;
+             }
+             button.red { color:red }
+             button.green { color:green }
+             button.blue { color:blue }
+
+             hr { border: 1px solid #dddddd;
+                  padding: 2px;
+             }
+
+             label { margin-left:20px;
+                     font-size:35px;
+                     width: 2em;
+                     display: inline-block;
+             }
+         </style>
+         <script type='text/javascript'>
+             var myStatusTimer;
+             var maxStatusQueryCnt = 0;
+             
+             var xmlHttp= new CreateXmlHttpObject();
+             
+             var $ = function(id) {
+                 return document.getElementById(id); 
+             }
+             
+             function CreateXmlHttpObject() {
+                 var xHttp;
+                 if(window.XMLHttpRequest){
+                     xHttp = new XMLHttpRequest();
+                 }else{
+                     xHttp = new ActiveXObject('Microsoft.XMLHTTP');
+                 }
+                 return xHttp;
+             }
+             
+             var handleServerResponse = function() {
+                 if( xmlHttp.readyState == 4 && xmlHttp.status == 200 ){
+                     if( maxStatusQueryCnt < 10 ){
+                         xmlResponse = xmlHttp.responseXML;
+                         xmldoc = xmlResponse.getElementsByTagName('response');
+                         message = xmldoc[0].firstChild.nodeValue;
+                     } else { message = "   please click on Lock Status button !";}
+             
+                     $('doorst').innerHTML = message;
+                 }
+             }
+             
+             var checkStatus = function() {
+                 if( xmlHttp.readyState == 0 || xmlHttp.readyState == 4 ){
+                     if( maxStatusQueryCnt < 10 ){
+                         xmlHttp.open('PUT','/xml',true);
+                         xmlHttp.onreadystatechange = handleServerResponse;
+                         xmlHttp.send(null);
+                         maxStatusQueryCnt++;
+                     } else if( maxStatusQueryCnt == 10 ){
+                         clearInterval(myStatusTimer);
+                         maxStatusQueryCnt = 100;
+                         $('lstat').disabled = false;
+                     }
+                 }
+             }
+             
+             var startStatusCheck = function() {
+                 myStatusTimer = setInterval( function() {checkStatus();}, 3000);
+             }
+             
+             var restartCheckStatus = function() {
+                 $('lstat').disabled = true;
+                 maxStatusQueryCnt = 0;
+                 startStatusCheck();
+                 $('doorst').innerHTML = "   please wait !";
+             }
+
+             var lightCtrl = function (e, arg) {
+                 if (!e) {
+                     e = window.event; // for IE
+                     e.returnValue = false;
+                 } else {
+                     e.preventDefault();
+                 }
+
+                 $('lgtCtrl').value = arg;
+                 $('lightCtrl').submit();
+             }
+             window.onload = startStatusCheck;
+         </script>
+     </head>
+     <body>
+         <header>
+             <H1>Laon Control Server</H1>
+         </header><br><br>        
+         <div>
+             <H1>Door Control</H1>
+             <form action='/?cmd=1&DrCtrl=3' method='post'>
+                 <input type='submit' value='Unlock' class='main'>
+             </form><br>
+             <form action='/?cmd=1&DrCtrl=4' method='post'>
+                 <input type='submit' value='Get Unlocked' class='main'>
+             </form><br><br>             
+         </div><br>         
+         <div>
+             <button id='lstat' disabled='disabled' onclick='restartCheckStatus()'>Lock Status</button>
+             &nbsp;&nbsp;<i><a id='doorst'></a></i>
+         </div><br><br>
+         <hr><br><br>
+         
+         <h1><mark>Light Control</mark></h1>
+         <form action='/?cmd=1' id='lightCtrl' method='post'>
+             <!--input type='radio' name='LightCtrl' value='1' checked> Light On &nbsp;&nbsp;&nbsp;
+             <input type='radio' name='LightCtrl' value='0'> Light Off <br><br>
+             <input type='submit' value='Light' style='width:200px; font-size:40px;'-->
+             <input type='text' id='lgtCtrl' name='LightCtrl' value='0' hidden>
+         </form><br>
+         <label>On:</label>
+         <button onclick='lightCtrl(event, 1)' class='red'>Red</button>
+         <button onclick='lightCtrl(event, 2)' class='green'>Green</button>
+         <button onclick='lightCtrl(event, 3)' class='blue'>Blue</button>
+         <button onclick='lightCtrl(event, 4)'> All</button><br><br>
+         <label>Off:</label>
+         <button onclick='lightCtrl(event, 9)'  class='red'>Off</button><!--Red Off-->
+         <button onclick='lightCtrl(event, 10)' class='green'>Off</button>
+         <button onclick='lightCtrl(event, 11)' class='blue'>Off</button>
+         <button onclick='lightCtrl(event, 12)'> Off</button><br><br><br><br>
+         
+         <label>Grow:</label>
+         <button onclick='lightCtrl(event, 8)'>Alt</button>
+         <button onclick='lightCtrl(event, 5)' class='green'>Green</button>
+         <button onclick='lightCtrl(event, 6)' class='blue'>Blue</button>
+         <button onclick='lightCtrl(event, 7)'>All</button>
+         <br><br>
+         <label>Stop:</label>
+         <button onclick='lightCtrl(event, 16)'>Stop</button>
+         <button onclick='lightCtrl(event, 13)' class='green'>Stop</button><!--Stop Green-->
+         <button onclick='lightCtrl(event, 14)' class='blue'>Stop</button>
+         <button onclick='lightCtrl(event, 15)'>Stop</button><!--Stop All-->
+         <br><br><br><br><br>
+         <i>
+             <a href = '/login?DISCONNECT=YES'>Log Out</a>
+             <a href='/?cmd=1&AdmSysMg=1'> System Management </a>
+         </i><br><br>
+         <footer>
+             <i>Revision: 0.3.1, Build : Sep. 18, 2020, Copyright &copy; 2020 by Gi Tae Cho.All Right Reserved.</i>
+         </footer>
+     </body>
+</html>

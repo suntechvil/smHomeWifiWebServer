@@ -1,0 +1,7 @@
+{
+    "admin": "4",
+    "super":   { "id": "00", "valid": "1", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+    "sugroup": { "id": "10", "valid": "1", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+    "adm1":    { "id": "20", "valid": "1", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" },
+    "adm2":    { "id": "21", "valid": "1", "fobsn": "", "reg date": "2018-12-01", "sccode": "0" }
+}

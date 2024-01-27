@@ -1,0 +1,15 @@
+{
+    "roomuser": "3",
+    "big": [
+        { "id": "31", "valid": "1", "name": "rm1-1", "pw": "rm1-1pw", "reg date": "2018-12-01", "hostI": "20", "macI": "", "hostII": "", "macII": "" },
+        { "id": "32", "valid": "0", "name": "rm1-2", "pw": "", "reg date": "", "hostI": "", "macI": "", "hostII": "", "macII": "" },
+        { "id": "33", "valid": "0", "name": "rm1-3", "pw": "", "reg date": "", "hostI": "", "macI": "", "hostII": "", "macII": "" } ],
+    "small": [
+        { "id": "41", "valid": "1", "name": "rm2-1", "pw": "rm2-1pw", "reg date": "2018-12-01", "hostI": "40", "macI": "", "hostII": "", "macII": "" },
+        { "id": "42", "valid": "0", "name": "rm2-2", "pw": "", "reg date": "", "hostI": "", "macI": "", "hostII": "", "macII": "" },
+        { "id": "43", "valid": "0", "name": "rm2-3", "pw": "", "reg date": "", "hostI": "", "macI": "", "hostII": "", "macII": "" } ],
+    "laundry": [
+        { "id": "51", "valid": "1", "name": "rm3-1", "pw": "rm3-1pw", "reg date": "2018-12-01", "hostI": "60", "macI": "", "hostII": "", "macII": "" },
+        { "id": "52", "valid": "0", "name": "rm3-2", "pw": "", "reg date": "", "hostI": "", "macI": "", "hostII": "", "macII": "" },
+        { "id": "53", "valid": "0", "name": "rm3-3", "pw": "", "reg date": "", "hostI": "", "macI": "", "hostII": "", "macII": "" } ]        
+}
